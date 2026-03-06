@@ -1,0 +1,9 @@
+[
+  { "day": "seg", "amount": 17.45 },
+  { "day": "ter", "amount": 34.91 },
+  { "day": "qua", "amount": 78.36 },
+  { "day": "qui", "amount": 31.07 },
+  { "day": "sex", "amount": 60.39 },
+  { "day": "sáb", "amount": 43.28 },
+  { "day": "dom", "amount": 25.48 }
+]
