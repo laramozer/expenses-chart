@@ -1,9 +1,86 @@
 [
-  { "day": "seg", "amount": 17.45 },
-  { "day": "ter", "amount": 34.91 },
-  { "day": "qua", "amount": 78.36 },
-  { "day": "qui", "amount": 31.07 },
-  { "day": "sex", "amount": 60.39 },
-  { "day": "sáb", "amount": 43.28 },
-  { "day": "dom", "amount": 25.48 }
+  {
+    "month": "Outubro",
+    "year": 2025,
+    "lastMonthChange": -3.1,
+    "days": [
+      { "day": "seg", "amount": 22.10 },
+      { "day": "ter", "amount": 18.75 },
+      { "day": "qua", "amount": 41.20 },
+      { "day": "qui", "amount": 29.60 },
+      { "day": "sex", "amount": 15.90 },
+      { "day": "sáb", "amount": 55.40 },
+      { "day": "dom", "amount": 12.30 }
+    ]
+  },
+  {
+    "month": "Novembro",
+    "year": 2025,
+    "lastMonthChange": 5.8,
+    "days": [
+      { "day": "seg", "amount": 30.50 },
+      { "day": "ter", "amount": 44.20 },
+      { "day": "qua", "amount": 28.75 },
+      { "day": "qui", "amount": 19.40 },
+      { "day": "sex", "amount": 61.90 },
+      { "day": "sáb", "amount": 38.10 },
+      { "day": "dom", "amount": 22.60 }
+    ]
+  },
+  {
+    "month": "Dezembro",
+    "year": 2025,
+    "lastMonthChange": 12.4,
+    "days": [
+      { "day": "seg", "amount": 48.30 },
+      { "day": "ter", "amount": 72.50 },
+      { "day": "qua", "amount": 55.80 },
+      { "day": "qui", "amount": 41.20 },
+      { "day": "sex", "amount": 66.40 },
+      { "day": "sáb", "amount": 89.70 },
+      { "day": "dom", "amount": 53.10 }
+    ]
+  },
+  {
+    "month": "Janeiro",
+    "year": 2026,
+    "lastMonthChange": -8.2,
+    "days": [
+      { "day": "seg", "amount": 21.40 },
+      { "day": "ter", "amount": 37.80 },
+      { "day": "qua", "amount": 29.50 },
+      { "day": "qui", "amount": 45.60 },
+      { "day": "sex", "amount": 18.90 },
+      { "day": "sáb", "amount": 52.30 },
+      { "day": "dom", "amount": 31.70 }
+    ]
+  },
+  {
+    "month": "Fevereiro",
+    "year": 2026,
+    "lastMonthChange": 3.5,
+    "days": [
+      { "day": "seg", "amount": 19.80 },
+      { "day": "ter", "amount": 42.60 },
+      { "day": "qua", "amount": 33.40 },
+      { "day": "qui", "amount": 27.90 },
+      { "day": "sex", "amount": 50.10 },
+      { "day": "sáb", "amount": 38.70 },
+      { "day": "dom", "amount": 24.50 }
+    ]
+  },
+  {
+    "month": "Março",
+    "year": 2026,
+    "lastMonthChange": 2.4,
+    "days": [
+      { "day": "seg", "amount": 17.45 },
+      { "day": "ter", "amount": 34.91 },
+      { "day": "qua", "amount": 52.36 },
+      { "day": "qui", "amount": 31.07 },
+      { "day": "sex", "amount": 23.39 },
+      { "day": "sáb", "amount": 43.28 },
+      { "day": "dom", "amount": 25.48 }
+    ]
+  }
 ]
