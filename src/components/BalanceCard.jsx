@@ -1,7 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 
+const BALANCE_KEY = 'expenses-chart-balance';
+
 export default function BalanceCard() {
-  const [balance, setBalance] = useState(921.48);
+  const [balance, setBalance] = useState(() => {
+    try {
+      const saved = localStorage.getItem(BALANCE_KEY);
+      return saved !== null ? parseFloat(saved) : 921.48;
+    } catch {
+      return 921.48;
+    }
+  });
   const [editing, setEditing] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState(false);
@@ -23,6 +32,7 @@ export default function BalanceCard() {
       return;
     }
     setBalance(parsed);
+    localStorage.setItem(BALANCE_KEY, String(parsed));
     setEditing(false);
   }
 

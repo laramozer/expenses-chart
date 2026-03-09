@@ -1,12 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import BalanceCard from './components/BalanceCard';
 import SpendingCard from './components/SpendingCard';
 import Planilha from './pages/Planilha';
 import initialData from './data/data.json';
 
+const STORAGE_KEY = 'expenses-chart-data';
+
 export default function App() {
   const [page, setPage] = useState('home');
-  const [months, setMonths] = useState(initialData);
+  const [months, setMonths] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : initialData;
+    } catch {
+      return initialData;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(months));
+  }, [months]);
 
   function updateMonth(monthIndex, updater) {
     setMonths((prev) =>
