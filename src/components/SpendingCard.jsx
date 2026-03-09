@@ -1,84 +1,35 @@
 import { useState } from 'react';
 import BarChart from './BarChart';
-import allMonths from '../data/data.json';
+import { deriveChartDays, MONTH_NUMBERS } from '../utils/deriveChartData';
 
 const CURRENT_MONTH = new Date().getMonth() + 1;
 const CURRENT_YEAR = new Date().getFullYear();
 
-const MONTH_NUMBERS = {
-  Janeiro: 1, Fevereiro: 2, Março: 3, Abril: 4, Maio: 5, Junho: 6,
-  Julho: 7, Agosto: 8, Setembro: 9, Outubro: 10, Novembro: 11, Dezembro: 12,
-};
-
-function isCurrentMonth(month) {
-  return (
-    MONTH_NUMBERS[month.month] === CURRENT_MONTH &&
-    month.year === CURRENT_YEAR
-  );
+function isCurrentMonth(m) {
+  return MONTH_NUMBERS[m.month] === CURRENT_MONTH && m.year === CURRENT_YEAR;
 }
 
-const initialIndex = allMonths.findIndex(isCurrentMonth);
-const defaultIndex = initialIndex !== -1 ? initialIndex : allMonths.length - 1;
+export default function SpendingCard({ months, onOpenPlanilha }) {
+  const defaultIndex = (() => {
+    const i = months.findIndex(isCurrentMonth);
+    return i !== -1 ? i : months.length - 1;
+  })();
 
-export default function SpendingCard() {
   const [monthIndex, setMonthIndex] = useState(defaultIndex);
-  const [monthsData, setMonthsData] = useState(allMonths);
-  const [editOpen, setEditOpen] = useState(false);
-  const [inputs, setInputs] = useState({});
-  const [errors, setErrors] = useState({});
 
-  const current = monthsData[monthIndex];
-  const total = current.days.reduce((sum, d) => sum + d.amount, 0);
-  const isFirst = monthIndex === 0;
-  const isLast = monthIndex === monthsData.length - 1;
+  const current = months[monthIndex];
+  const monthNum = MONTH_NUMBERS[current.month];
+  const chartDays = deriveChartDays(current.expenses, monthNum, current.year);
+  const total = current.expenses.reduce((sum, e) => sum + e.amount, 0);
   const isCurrent = isCurrentMonth(current);
-
-  function openEdit() {
-    setInputs(Object.fromEntries(current.days.map((d) => [d.day, String(d.amount)])));
-    setErrors({});
-    setEditOpen(true);
-  }
-
-  function handleInputChange(day, value) {
-    setInputs((prev) => ({ ...prev, [day]: value }));
-    setErrors((prev) => ({ ...prev, [day]: false }));
-  }
-
-  function handleSave() {
-    const newErrors = {};
-    const newDays = current.days.map((d) => {
-      const parsed = parseFloat(inputs[d.day]?.replace(',', '.'));
-      if (isNaN(parsed) || parsed < 0) {
-        newErrors[d.day] = true;
-        return d;
-      }
-      return { ...d, amount: parsed };
-    });
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setMonthsData((prev) =>
-      prev.map((m, i) => (i === monthIndex ? { ...m, days: newDays } : m))
-    );
-    setEditOpen(false);
-  }
-
-  function handleCancel() {
-    setErrors({});
-    setEditOpen(false);
-  }
 
   return (
     <div className="bg-[#FEFAF6] rounded-2xl px-6 pt-8 pb-6 w-full flex flex-col gap-6 shadow-sm">
 
-      {/* Cabeçalho com navegação de meses */}
       <div className="flex items-center justify-between gap-2">
         <button
-          onClick={() => { setMonthIndex((i) => i - 1); setEditOpen(false); }}
-          disabled={isFirst}
+          onClick={() => setMonthIndex((i) => i - 1)}
+          disabled={monthIndex === 0}
           aria-label="Mês anterior"
           className="p-1.5 rounded-lg text-[#93857A] hover:text-[#382314] hover:bg-[#F4EDE7] disabled:opacity-30 disabled:cursor-not-allowed transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC755D]"
         >
@@ -98,12 +49,12 @@ export default function SpendingCard() {
               </span>
             )}
           </div>
-          <p className="text-[#93857A] text-xs mt-0.5">Gastos — últimos 7 dias</p>
+          <p className="text-[#93857A] text-xs mt-0.5">Gastos por dia da semana</p>
         </div>
 
         <button
-          onClick={() => { setMonthIndex((i) => i + 1); setEditOpen(false); }}
-          disabled={isLast}
+          onClick={() => setMonthIndex((i) => i + 1)}
+          disabled={monthIndex === months.length - 1}
           aria-label="Próximo mês"
           className="p-1.5 rounded-lg text-[#93857A] hover:text-[#382314] hover:bg-[#F4EDE7] disabled:opacity-30 disabled:cursor-not-allowed transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC755D]"
         >
@@ -113,12 +64,11 @@ export default function SpendingCard() {
         </button>
       </div>
 
-      {/* Indicador de posição dos meses */}
       <div className="flex justify-center gap-1.5 -mt-3">
-        {monthsData.map((m, i) => (
+        {months.map((m, i) => (
           <button
             key={`${m.month}-${m.year}`}
-            onClick={() => { setMonthIndex(i); setEditOpen(false); }}
+            onClick={() => setMonthIndex(i)}
             aria-label={`${m.month} ${m.year}`}
             className={[
               'rounded-full transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC755D]',
@@ -130,7 +80,7 @@ export default function SpendingCard() {
         ))}
       </div>
 
-      <BarChart data={current.days} />
+      <BarChart data={chartDays} />
 
       <hr className="border-[#EEE5DB]" />
 
@@ -150,65 +100,15 @@ export default function SpendingCard() {
       </div>
 
       <button
-        onClick={editOpen ? handleCancel : openEdit}
-        className="w-full py-2.5 rounded-xl bg-[#F4EDE7] text-[#382314] text-sm font-semibold hover:bg-[#EEE5DB] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC755D] focus-visible:ring-offset-2"
+        onClick={onOpenPlanilha}
+        className="w-full py-2.5 rounded-xl bg-[#F4EDE7] text-[#382314] text-sm font-semibold hover:bg-[#EEE5DB] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC755D] focus-visible:ring-offset-2 flex items-center justify-center gap-2"
       >
-        {editOpen ? 'Fechar edição' : 'Editar gastos'}
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="1" y="1" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M1 5H15M1 9H15M1 13H15M5 1V15M11 1V15" stroke="currentColor" strokeWidth="1.5" />
+        </svg>
+        Ver planilha de gastos
       </button>
-
-      {editOpen && (
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-3">
-            {current.days.map((item) => (
-              <div key={item.day} className="flex flex-col gap-1">
-                <label
-                  htmlFor={`input-${item.day}`}
-                  className="text-[#93857A] text-xs font-medium uppercase tracking-wide"
-                >
-                  {item.day}
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#93857A] text-sm pointer-events-none">
-                    R$
-                  </span>
-                  <input
-                    id={`input-${item.day}`}
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={inputs[item.day] ?? ''}
-                    onChange={(e) => handleInputChange(item.day, e.target.value)}
-                    className={[
-                      'w-full pl-9 pr-3 py-2 rounded-lg border text-[#382314] text-sm font-medium bg-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC755D] focus-visible:ring-offset-1',
-                      errors[item.day]
-                        ? 'border-red-400 bg-red-50'
-                        : 'border-[#EEE5DB] focus:border-[#EC755D]',
-                    ].join(' ')}
-                  />
-                </div>
-                {errors[item.day] && (
-                  <p className="text-red-500 text-xs">Valor inválido</p>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={handleCancel}
-              className="flex-1 py-2.5 rounded-xl border border-[#EEE5DB] text-[#93857A] text-sm font-semibold hover:bg-[#F4EDE7] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#93857A] focus-visible:ring-offset-2"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleSave}
-              className="flex-1 py-2.5 rounded-xl bg-[#EC755D] text-white text-sm font-semibold hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC755D] focus-visible:ring-offset-2"
-            >
-              Salvar
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
