@@ -6,6 +6,7 @@ import {
   getWeeksOfMonth,
   nextId,
 } from '../utils/deriveChartData';
+import { CATEGORIES, getCategoryById } from '../utils/categories';
 
 const CURRENT_MONTH = new Date().getMonth() + 1;
 const CURRENT_YEAR = new Date().getFullYear();
@@ -20,7 +21,7 @@ const DAY_COLORS = {
   dom: 'bg-rose-100 text-rose-700',
 };
 
-const EMPTY_FORM = { date: '', description: '', amount: '' };
+const EMPTY_FORM = { date: '', description: '', category: 'alimentacao', amount: '' };
 
 export default function Planilha({ months, updateMonth, onBack }) {
   const defaultIndex = (() => {
@@ -81,7 +82,7 @@ export default function Planilha({ months, updateMonth, onBack }) {
       ...m,
       expenses: [
         ...m.expenses,
-        { id: nextId(m.expenses), date: dateNum, description: form.description.trim(), amount },
+        { id: nextId(m.expenses), date: dateNum, description: form.description.trim(), category: form.category, amount },
       ],
     }));
     setForm(EMPTY_FORM);
@@ -102,7 +103,7 @@ export default function Planilha({ months, updateMonth, onBack }) {
 
   function startEdit(entry) {
     setEditingId(entry.id);
-    setEditForm({ date: String(entry.date), description: entry.description, amount: String(entry.amount) });
+    setEditForm({ date: String(entry.date), description: entry.description, category: entry.category ?? 'outros', amount: String(entry.amount) });
   }
 
   function saveEdit(id) {
@@ -115,7 +116,7 @@ export default function Planilha({ months, updateMonth, onBack }) {
       ...m,
       expenses: m.expenses.map((e) =>
         e.id === id
-          ? { ...e, date: dateNum, description: editForm.description.trim(), amount }
+          ? { ...e, date: dateNum, description: editForm.description.trim(), category: editForm.category, amount }
           : e
       ),
     }));
@@ -203,7 +204,20 @@ export default function Planilha({ months, updateMonth, onBack }) {
             />
           </div>
 
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 col-span-2 sm:col-span-2">
+            <label className="text-[#93857A] text-xs font-medium uppercase tracking-wide">Categoria</label>
+            <select
+              value={form.category}
+              onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+              className="border border-[#EEE5DB] rounded-lg pl-3 pr-8 py-2 text-[#382314] text-sm bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC755D] focus:border-[#EC755D] appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M4%206l4%204%204-4%22%20stroke%3D%22%2393857A%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.75rem_center]"
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c.id} value={c.id}>{c.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1 col-span-2 sm:col-span-2">
             <label className="text-[#93857A] text-xs font-medium uppercase tracking-wide">Valor</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#93857A] text-xs pointer-events-none">R$</span>
@@ -315,6 +329,17 @@ export default function Planilha({ months, updateMonth, onBack }) {
                               />
                             </td>
                             <td className="px-4 py-2">
+                              <select
+                                value={editForm.category}
+                                onChange={(e) => setEditForm((f) => ({ ...f, category: e.target.value }))}
+                                className="border border-[#EEE5DB] rounded-lg pl-2 pr-7 py-1 text-[#382314] text-xs bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC755D] w-full appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M4%206l4%204%204-4%22%20stroke%3D%22%2393857A%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.5rem_center]"
+                              >
+                                {CATEGORIES.map((c) => (
+                                  <option key={c.id} value={c.id}>{c.label}</option>
+                                ))}
+                              </select>
+                            </td>
+                            <td className="px-4 py-2">
                               <input
                                 type="number"
                                 min="0"
@@ -355,7 +380,19 @@ export default function Planilha({ months, updateMonth, onBack }) {
                                 <span className="text-[#D9CFC9] text-xs pl-4">·</span>
                               )}
                             </td>
-                            <td className="px-5 py-3 text-[#382314]">{entry.description}</td>
+                            <td className="px-5 py-3">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-[#382314]">{entry.description}</span>
+                                {(() => {
+                                  const cat = getCategoryById(entry.category);
+                                  return (
+                                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${cat.color}`}>
+                                      {cat.label}
+                                    </span>
+                                  );
+                                })()}
+                              </div>
+                            </td>
                             <td className="px-5 py-3 text-right font-semibold text-[#382314] whitespace-nowrap">
                               R$ {entry.amount.toFixed(2).replace('.', ',')}
                             </td>
